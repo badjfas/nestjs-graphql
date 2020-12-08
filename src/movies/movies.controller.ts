@@ -10,6 +10,7 @@ import {
   Put,
   Query,
 } from '@nestjs/common';
+import { CreateMovieDto } from './dto/create-movie.dto';
 import { Movie } from './entities/movies.entity';
 import { MoviesService } from './movies.service';
 
@@ -22,29 +23,29 @@ export class MoviesController {
   }
 
   @Post('create')
-  create(@Body() movieData) {
+  create(@Body() movieData: CreateMovieDto) {
     return this.movieService.createOne(movieData);
   }
 
   @Get(':id')
-  getOne(@Param('id') id: string): Movie {
+  getOne(@Param('id') id: number): Movie {
     const movie = this.movieService.getOne(id);
     if (!movie) {
-      throw new NotFoundException('Movie id not Found :', id);
+      throw new NotFoundException(`Movie id not Found :${id}`);
     } else {
       return movie;
     }
   }
 
   @Delete(':id')
-  deleteOne(@Param('id') id: string): boolean {
+  deleteOne(@Param('id') id: number): boolean {
     this.getOne(id);
     this.movieService.deleteOne(id);
     return true;
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateData) {
+  update(@Param('id') id: number, @Body() updateData) {
     return this.movieService.updateOne(id, updateData);
   }
 }
