@@ -1,30 +1,28 @@
 import { Body, Controller, Get, Post } from '@nestjs/common';
-import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
+import { Args, Context, Mutation, Query, Resolver } from '@nestjs/graphql';
 import * as crypto from 'crypto';
 import { Role } from './role.decorator';
 
 import { Users } from './entity/user.entity';
 import { UserService } from './user.service';
 import { LoginInput, LoginOutput } from './dto/login.dto';
+import { AuthUser } from 'src/auth/auth.decorator';
+import { userDto } from './dto/user.dto';
 @Resolver((of) => Users)
 export class UserResolver {
   constructor(private readonly userService: UserService) {}
 
   @Query((returns) => [Users])
-  findAll(): Promise<Users[]> {
-    return this.userService.findAll();
+  findAll(@AuthUser() authUser): Promise<Users[]> {
+    if (authUser) {
+      return this.userService.findAll();
+    }
   }
 
   @Query((returns) => Users)
-  me(): Promise<Users> {
-    return this.userService.me(1);
+  me(@AuthUser() authUser: Users) {
+    return { ...authUser };
   }
-  //   @Post('users/create')
-  //   create(@Body() userData): Promise<Users> {
-  //     console.log(userData);
-  //     return this.userService.create({ ...userData });
-  //     // return this.create({stud})
-  //   }
 
   @Mutation((returns) => LoginOutput)
   login(@Args('loginInput') loginInput: LoginInput): Promise<LoginOutput> {

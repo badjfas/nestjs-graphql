@@ -5,18 +5,17 @@ import { Repository } from 'typeorm';
 import { userDto } from './dto/user.dto';
 import * as jwt from 'jsonwebtoken';
 import { LoginInput, LoginOutput } from './dto/login.dto';
+import { JwtService } from 'src/jwt/jwt.service';
+import { AuthUser } from 'src/auth/auth.decorator';
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(Users)
     private userRepository: Repository<Users>,
+    private readonly jwtService: JwtService,
   ) {}
   findAll(): Promise<Users[]> {
     return this.userRepository.find();
-  }
-
-  me(id: number): Promise<Users> {
-    return this.userRepository.findOne(id);
   }
 
   async login({ studentId, password }: LoginInput): Promise<LoginOutput> {
@@ -28,15 +27,22 @@ export class UserService {
         })
         .then((result) => {
           if (result.password === password) {
-            token = jwt.sign({ id: result.id }, '12345');
+            token = jwt.sign({ id: result.id }, process.env.JWT_SECRET);
           }
-        });
+        })
+        .catch((err) => console.log(err));
       return {
         token: token,
+        ok: token ? true : false,
+        error: !token && 'Authorization Error',
       };
     } catch (e) {
-      console.log(e);
+      throw Error('Error');
     }
+  }
+
+  async findById(id: number): Promise<Users> {
+    return await this.userRepository.findOne({ id: id });
   }
 
   create(userData: userDto): Promise<Users> {
