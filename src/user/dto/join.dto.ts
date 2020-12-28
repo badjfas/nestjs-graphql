@@ -3,10 +3,14 @@ import { CoreOutput } from 'src/common.dto';
 import { Users } from '../entity/user.entity';
 
 @InputType()
-export class LoginInput extends PickType(Users, ['email', 'password']) {}
+export class JoinInput extends PickType(Users, [
+  'email',
+  'password',
+  'address',
+  'gender',
+  'phone',
+  'userName',
+]) {}
 
 @ObjectType()
-export class LoginOutput extends CoreOutput {
-  @Field((type) => String, { nullable: true })
-  token?: string;
-}
+export class JoinOutput extends CoreOutput {}

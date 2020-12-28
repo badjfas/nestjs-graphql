@@ -6,7 +6,7 @@ import { userDto } from './dto/user.dto';
 import * as jwt from 'jsonwebtoken';
 import { LoginInput, LoginOutput } from './dto/login.dto';
 import { JwtService } from 'src/jwt/jwt.service';
-import { AuthUser } from 'src/auth/auth.decorator';
+import { JoinInput, JoinOutput } from './dto/join.dto';
 @Injectable()
 export class UserService {
   constructor(
@@ -18,12 +18,27 @@ export class UserService {
     return this.userRepository.find();
   }
 
-  async login({ studentId, password }: LoginInput): Promise<LoginOutput> {
+  async join(joinInput: JoinInput): Promise<JoinOutput> {
+    try {
+      await this.userRepository.save({ ...joinInput });
+      return {
+        ok: true,
+      };
+    } catch (e) {
+      console.log(e);
+      return {
+        ok: false,
+        error: '잘못된 접근 입니다.',
+      };
+    }
+  }
+
+  async login({ email, password }: LoginInput): Promise<LoginOutput> {
     try {
       let token: string;
       await this.userRepository
         .findOne({
-          studentId: studentId,
+          email: email,
         })
         .then((result) => {
           if (result.password === password) {

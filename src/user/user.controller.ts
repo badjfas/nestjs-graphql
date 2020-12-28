@@ -1,13 +1,11 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
 import { Args, Context, Mutation, Query, Resolver } from '@nestjs/graphql';
 import * as crypto from 'crypto';
-import { Role } from './role.decorator';
 
 import { Users } from './entity/user.entity';
 import { UserService } from './user.service';
 import { LoginInput, LoginOutput } from './dto/login.dto';
 import { AuthUser } from 'src/auth/auth.decorator';
-import { userDto } from './dto/user.dto';
+import { JoinInput, JoinOutput } from './dto/join.dto';
 @Resolver((of) => Users)
 export class UserResolver {
   constructor(private readonly userService: UserService) {}
@@ -24,6 +22,16 @@ export class UserResolver {
     return { ...authUser };
   }
 
+  @Mutation((returns) => JoinOutput)
+  join(@Args('input') joinInput: JoinInput): Promise<JoinOutput> {
+    console.log(joinInput);
+    const hashPassword = crypto
+      .createHash('sha512')
+      .update(joinInput.password)
+      .digest('base64');
+    return this.userService.join({ ...joinInput, password: hashPassword });
+  }
+
   @Mutation((returns) => LoginOutput)
   login(@Args('loginInput') loginInput: LoginInput): Promise<LoginOutput> {
     const hashPassword = crypto
@@ -32,7 +40,7 @@ export class UserResolver {
       .digest('base64');
 
     return this.userService.login({
-      studentId: loginInput.studentId,
+      email: loginInput.email,
       password: hashPassword,
     });
   }

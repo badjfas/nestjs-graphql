@@ -6,6 +6,9 @@ import { GraphQLModule } from '@nestjs/graphql';
 import { JwtModule } from './jwt/jwt.module';
 import { ConfigModule } from '@nestjs/config';
 import { AuthModule } from './auth/auth.module';
+import { ProductsModule } from './products/products.module';
+import { CategoryModule } from './category/category.module';
+import { Products } from './products/entity/product.entity';
 
 @Module({
   imports: [
@@ -18,9 +21,9 @@ import { AuthModule } from './auth/auth.module';
       port: 3306,
       username: 'bjwkor',
       password: 'bjwkor',
-      database: 'capstone',
-      entities: [Users],
-      synchronize: true,
+      database: 'market',
+      entities: [Users, Products],
+      // synchronize: true,
     }),
     GraphQLModule.forRoot({
       autoSchemaFile: true,
@@ -39,6 +42,8 @@ import { AuthModule } from './auth/auth.module';
     AuthModule,
 
     JwtModule.forRoot({ key: process.env.JWT_SECRET }),
+
+    ProductsModule,
   ],
   controllers: [],
   providers: [],

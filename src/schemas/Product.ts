@@ -1,35 +1,53 @@
+import { Products } from '../products/entity/product.entity';
 import { EntitySchema } from 'typeorm';
-import { Users } from '../user/entity/user.entity';
 
-export const UserSchema = new EntitySchema<Users>({
-  name: 'Users',
-  target: Users,
+export const ProductSchema = new EntitySchema<Products>({
+  name: 'Product',
+  target: Products,
   columns: {
     id: {
       type: Number,
       primary: true,
       generated: true,
     },
-    email: {
-      type: String,
-    },
-    phone: {
+    productName: {
       type: String,
       nullable: true,
     },
-    address: {
-      type: String,
-    },
-    userName: {
+
+    category: {
       type: String,
       nullable: true,
     },
-    password: {
+
+    area: {
       type: String,
+      nullable: true,
     },
-    gender: {
+
+    content: {
       type: String,
+      nullable: true,
     },
+
+    price: {
+      type: String,
+      nullable: true,
+    },
+
+    state: {
+      type: String,
+      nullable: true,
+    },
+    fileString: {
+      type: String,
+      nullable: true,
+    },
+    viewCounts: {
+      type: String,
+      nullable: true,
+    },
+
     createdAt: {
       type: Date,
       default: Date.now(),

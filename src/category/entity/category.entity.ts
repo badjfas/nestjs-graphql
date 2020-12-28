@@ -15,34 +15,38 @@ import {
 @InputType('userInput', { isAbstract: true })
 @ObjectType()
 @Entity()
-export class Users {
+export class Category {
   @PrimaryGeneratedColumn()
-  @Field((type) => ID)
+  @Field((type) => Number)
   id: number;
 
-  @Column({ length: 100 })
+  @Column()
   @Field((type) => String)
-  email: string;
+  productName: string;
 
-  @Column({ length: 11 })
+  @Column()
   @Field((type) => String)
-  phone: string;
+  category: string;
 
-  @Column({ length: 100 })
-  @Field((type) => String)
-  address: string;
-
-  @Column({ length: 2000 })
+  @Column()
   @Field((type) => String)
   password: string;
 
-  @Column({ length: 15 })
+  @Column()
   @Field((type) => String)
-  userName: string;
+  firstName: string;
 
-  @Column({ length: 10 })
+  @Column()
+  @Field((type) => String)
+  lastName: string;
+
+  @Column({ default: '123' })
   @Field((type) => String)
   gender: String;
+
+  @Column({ default: 103 })
+  @Field((type) => String)
+  departmentId: String;
 
   @Column({ type: 'timestamp' })
   @Field((type) => String)
