@@ -5,7 +5,13 @@ import {
   registerEnumType,
 } from '@nestjs/graphql';
 import { CoreEntity } from 'src/common/entities/core.entity';
-import { BeforeInsert, Column, Entity } from 'typeorm';
+import {
+  AfterInsert,
+  BeforeInsert,
+  BeforeUpdate,
+  Column,
+  Entity,
+} from 'typeorm';
 import * as crypto from 'crypto';
 import { InternalServerErrorException } from '@nestjs/common';
 // type UserRole = 'client' | 'owner' | 'delivery';
@@ -35,8 +41,9 @@ export class User extends CoreEntity {
   role: UserRole;
 
   @BeforeInsert()
-  async hashPassword(): Promise<void> {
-    console.log('hash');
+  @BeforeUpdate()
+  async beforeHashPassword(): Promise<void> {
+    console.log('before hash');
     try {
       this.password = await crypto
         .createHash('sha512')
@@ -45,6 +52,19 @@ export class User extends CoreEntity {
     } catch (e) {
       console.log(e);
       throw new InternalServerErrorException();
+    }
+  }
+
+  async checkPassword(pwd: string): Promise<boolean> {
+    const hashPassword = await crypto
+      .createHash('sha512')
+      .update(pwd)
+      .digest('base64');
+
+    try {
+      if (this.password === hashPassword) return await true;
+    } catch {
+      return await false;
     }
   }
 }

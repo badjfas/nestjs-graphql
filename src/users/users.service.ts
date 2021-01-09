@@ -1,9 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { CreateUserDto, CreateUserOutput } from './dtos/user.dto';
+import {
+  CreateUserInput,
+  CreateUserOutput,
+  LoggedInUserInput,
+  LoggedInUserOutput,
+} from './dtos/user.dto';
 import { User } from './entities/user.entity';
-import crypto from 'crypto';
 @Injectable()
 export class UserService {
   constructor(
@@ -14,25 +18,67 @@ export class UserService {
     return this.usersRepository.find();
   }
 
-  async createUser(createUserDto: CreateUserDto) {
+  async createUser(
+    createUserInput: CreateUserInput,
+  ): Promise<CreateUserOutput> {
     try {
       //email Check
       const emailCheck = await this.usersRepository.findOne({
-        email: createUserDto.email,
+        email: createUserInput.email,
       });
       if (!emailCheck) {
-        await this.usersRepository.save(
-          this.usersRepository.create({ ...createUserDto }),
+        const result = await this.usersRepository.save(
+          this.usersRepository.create({ ...createUserInput }),
         );
         return {
           ok: true,
+          ...result,
         };
       } else {
         return {
           ok: false,
-          error: 'retry',
+          error: 'Email Already Existing',
         };
       }
-    } catch (e) {}
+    } catch (e) {
+      return {
+        ok: false,
+        error: e,
+      };
+    }
+  }
+  async handleLogin({
+    email,
+    password,
+  }: LoggedInUserInput): Promise<LoggedInUserOutput> {
+    const user = await this.usersRepository.findOne(
+      { email: email },
+      { select: ['id', 'password'] },
+    );
+    if (!user) {
+      return {
+        ok: false,
+        error: 'Fail',
+      };
+    }
+    try {
+      const isValidPwd = await user.checkPassword(password);
+      if (isValidPwd) {
+        return {
+          ok: true,
+          token: 'access token',
+        };
+      } else {
+        return {
+          ok: false,
+          error: 'Fail',
+        };
+      }
+    } catch (e) {
+      return {
+        ok: false,
+        error: 'Fail',
+      };
+    }
   }
 }
