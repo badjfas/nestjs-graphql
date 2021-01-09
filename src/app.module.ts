@@ -1,9 +1,8 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-
+import * as Joi from 'joi';
 import { GraphQLModule } from '@nestjs/graphql';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { join } from 'path';
 import { RestaurantsModule } from './restaurants/restaurants.module';
 
 @Module({
@@ -12,6 +11,15 @@ import { RestaurantsModule } from './restaurants/restaurants.module';
       isGlobal: true,
       envFilePath: process.env.NODE_ENV === 'dev' ? '.env.dev' : '.prod.env',
       ignoreEnvFile: process.env.NODE_ENV === 'prod',
+      //환경변수 validator
+      validationSchema: Joi.object({
+        NODE_ENV: Joi.string().valid('dev', 'prod'),
+        DB_PORT: Joi.string().required(),
+        HOST: Joi.string().required(),
+        USERNAME: Joi.string().required(),
+        PASSWORD: Joi.string().required(),
+        DB: Joi.string().required(),
+      }),
     }), // dotenv
     TypeOrmModule.forRoot({
       type: 'postgres',
