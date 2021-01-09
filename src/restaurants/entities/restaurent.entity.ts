@@ -6,8 +6,8 @@ import { Column, Entity, PrimaryColumn } from 'typeorm';
 @Entity() //for TypeORM
 export class Restaurant {
   @PrimaryColumn({ generated: 'uuid' })
-  @Field(() => ID)
-  id: number;
+  @Field(() => String)
+  id: string;
 
   @Field(() => String)
   @Column()
