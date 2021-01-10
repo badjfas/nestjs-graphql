@@ -1,4 +1,5 @@
 import {
+  ArgsType,
   Field,
   InputType,
   ObjectType,
@@ -6,6 +7,7 @@ import {
   PartialType,
   PickType,
 } from '@nestjs/graphql';
+import { CoreOutput } from 'src/common/dto/output.dto';
 import { User } from '../entities/user.entity';
 
 @ObjectType()
@@ -37,4 +39,16 @@ export class LoggedInUserOutput {
   ok?: boolean;
   @Field(() => String, { nullable: true })
   token?: string;
+}
+
+@ArgsType()
+export class UserProfileInput {
+  @Field(() => String)
+  id: string;
+}
+
+@ObjectType()
+export class UserProfileOutput extends CoreOutput {
+  @Field(() => User, { nullable: true })
+  user?: User;
 }
