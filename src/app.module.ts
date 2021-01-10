@@ -46,6 +46,11 @@ import { JwtMiddleware } from './jwt/jwt.middleware';
     }),
     GraphQLModule.forRoot({
       autoSchemaFile: true,
+      context: ({ req, res }) => {
+        return {
+          user: req['user'],
+        };
+      },
     }),
     RestaurantsModule,
     UsersModule,
