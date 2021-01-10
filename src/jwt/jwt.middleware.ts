@@ -20,7 +20,10 @@ export class JwtMiddleware implements NestMiddleware {
         try {
           const user = await this.userService.findById(verify['id']);
           req['user'] = user;
-        } catch (e) {}
+        } catch (e) {
+          console.log(e);
+          return e;
+        }
       }
     }
     next(); //next() 가 request user를 받음

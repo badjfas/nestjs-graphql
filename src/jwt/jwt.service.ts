@@ -14,6 +14,11 @@ export class JwtService {
   }
 
   verified(token: string) {
-    return jwt.verify(token, this.options.privateKey);
+    try {
+      const result = jwt.verify(token, this.options.privateKey);
+      return result;
+    } catch {
+      return undefined;
+    }
   }
 }
