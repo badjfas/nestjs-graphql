@@ -85,4 +85,11 @@ export class UserService {
       };
     }
   }
+
+  async findById(id: string): Promise<User> {
+    return this.usersRepository.findOne(
+      { id },
+      { select: ['id', 'email', 'role'] },
+    );
+  }
 }

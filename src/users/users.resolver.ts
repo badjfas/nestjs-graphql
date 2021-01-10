@@ -52,5 +52,7 @@ export class UsersResolver {
   }
 
   @Query(() => User)
-  me() {}
+  me(): Promise<User> {
+    return null;
+  }
 }
