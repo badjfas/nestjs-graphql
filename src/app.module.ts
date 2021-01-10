@@ -8,6 +8,7 @@ import { Restaurant } from './restaurants/entities/restaurent.entity';
 import { UsersModule } from './users/users.module';
 import { CommonModule } from './common/common.module';
 import { User } from './users/entities/user.entity';
+import { JwtModule } from './jwt/jwt.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { User } from './users/entities/user.entity';
         USERNAME: Joi.string().required(),
         PASSWORD: Joi.string().required(),
         DB: Joi.string().required(),
+        JWT_SECRET: Joi.string().required(),
       }),
     }), // dotenv
     TypeOrmModule.forRoot({
@@ -42,6 +44,9 @@ import { User } from './users/entities/user.entity';
     RestaurantsModule,
     UsersModule,
     CommonModule,
+    JwtModule.forRoot({
+      privateKey: process.env.JWT_SECRET,
+    }),
   ],
   controllers: [],
   providers: [],

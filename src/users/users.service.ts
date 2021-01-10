@@ -8,10 +8,12 @@ import {
   LoggedInUserOutput,
 } from './dtos/user.dto';
 import { User } from './entities/user.entity';
+import { JwtService } from 'src/jwt/jwt.service';
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(User) private readonly usersRepository: Repository<User>,
+    private readonly jwtService: JwtService,
   ) {}
 
   getUsers() {
@@ -61,12 +63,14 @@ export class UserService {
         error: 'Fail',
       };
     }
+
     try {
       const isValidPwd = await user.checkPassword(password);
       if (isValidPwd) {
+        const token = this.jwtService.sign(user);
         return {
           ok: true,
-          token: 'access token',
+          token: token,
         };
       } else {
         return {
