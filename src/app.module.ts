@@ -47,8 +47,9 @@ import { AuthModule } from './auth/auth.module';
     GraphQLModule.forRoot({
       autoSchemaFile: true,
       context: ({ req, res }) => {
+        // resolver가 실행될때 매번 실행됌
         return {
-          user: req['user'],
+          user: req['user'], //request에 user가 들어감
         };
       },
     }),

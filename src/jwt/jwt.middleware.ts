@@ -1,4 +1,8 @@
-import { Injectable, NestMiddleware } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  NestMiddleware,
+} from '@nestjs/common';
 import { Response, Request, NextFunction } from 'express';
 import { UserService } from 'src/users/users.service';
 import { JwtService } from './jwt.service';
@@ -12,18 +16,17 @@ export class JwtMiddleware implements NestMiddleware {
   // implemnents는 클래스가 interface처럼 사용되게 만듬
   async use(req: Request, res: Response, next: NextFunction) {
     if ('x-jwt' in req.headers) {
-      const token = req.headers['x-jwt'];
+      try {
+        const token = req.headers['x-jwt'];
 
-      const verify = this.jwtService.verified(token.toString());
+        const verify = this.jwtService.verified(token.toString());
 
-      if (typeof verify === 'object' && verify.hasOwnProperty('id')) {
-        try {
+        if (typeof verify === 'object' && verify.hasOwnProperty('id')) {
           const user = await this.userService.findById(verify['id']);
           req['user'] = user;
-        } catch (e) {
-          console.log(e);
-          return e;
         }
+      } catch (e) {
+        console.log('Invalid Token');
       }
     }
     next(); //next() 가 request user를 받음
