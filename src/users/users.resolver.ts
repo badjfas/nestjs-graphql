@@ -7,6 +7,8 @@ import {
   CreateUserOutput,
   LoggedInUserInput,
   LoggedInUserOutput,
+  ProfileEditInput,
+  ProfileEditOutput,
   UserProfileInput,
   UserProfileOutput,
 } from './dtos/user.dto';
@@ -77,6 +79,27 @@ export class UsersResolver {
         user: user,
       };
     } catch (e) {
+      return {
+        ok: false,
+        error: 'Error',
+      };
+    }
+  }
+
+  @UseGuards(AuthGuard)
+  @Mutation(() => ProfileEditOutput)
+  async editProfile(
+    @AuthUser() authUser: User,
+    @Args('input')
+    profileEditInput: ProfileEditInput,
+  ): Promise<ProfileEditOutput> {
+    try {
+      await this.userService.editProfile(authUser.id, profileEditInput);
+
+      return {
+        ok: true,
+      };
+    } catch {
       return {
         ok: false,
         error: 'Error',

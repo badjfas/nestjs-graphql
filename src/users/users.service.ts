@@ -6,6 +6,8 @@ import {
   CreateUserOutput,
   LoggedInUserInput,
   LoggedInUserOutput,
+  ProfileEditInput,
+  ProfileEditOutput,
 } from './dtos/user.dto';
 import { User } from './entities/user.entity';
 import { JwtService } from 'src/jwt/jwt.service';
@@ -91,5 +93,23 @@ export class UserService {
       { id },
       { select: ['id', 'email', 'role', 'createdAt'] },
     );
+  }
+
+  async editProfile(
+    id: string,
+    profileEditInput: ProfileEditInput,
+  ): Promise<User> {
+    try {
+      const user = await this.usersRepository.findOne({ id: id });
+      if (profileEditInput.email) {
+        user.email = profileEditInput.email;
+      }
+      if (profileEditInput.password) {
+        user.password = profileEditInput.password;
+      }
+      return await this.usersRepository.save(user);
+    } catch {
+      throw Error();
+    }
   }
 }

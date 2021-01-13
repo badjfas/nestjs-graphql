@@ -52,3 +52,9 @@ export class UserProfileOutput extends CoreOutput {
   @Field(() => User, { nullable: true })
   user?: User;
 }
+
+@InputType()
+export class ProfileEditInput extends PartialType(User) {}
+
+@ObjectType()
+export class ProfileEditOutput extends CoreOutput {}
