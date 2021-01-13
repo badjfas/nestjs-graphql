@@ -11,10 +11,13 @@ import {
 } from './dtos/user.dto';
 import { User } from './entities/user.entity';
 import { JwtService } from 'src/jwt/jwt.service';
+import { Verifications } from './entities/verification.entitiy';
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(User) private readonly usersRepository: Repository<User>,
+    @InjectRepository(Verifications)
+    private readonly verification: Repository<Verifications>,
     private readonly jwtService: JwtService,
   ) {}
 
@@ -22,22 +25,21 @@ export class UserService {
     return this.usersRepository.find();
   }
 
-  async createUser(
-    createUserInput: CreateUserInput,
-  ): Promise<CreateUserOutput> {
+  async createUser(createUserInput: CreateUserInput) {
     try {
       //email Check
       const emailCheck = await this.usersRepository.findOne({
         email: createUserInput.email,
       });
       if (!emailCheck) {
-        const result = await this.usersRepository.save(
+        const user = await this.usersRepository.save(
           this.usersRepository.create({ ...createUserInput }),
         );
-        return {
-          ok: true,
-          ...result,
-        };
+        await this.verification.save(
+          this.verification.create({
+            user,
+          }),
+        );
       } else {
         return {
           ok: false,
@@ -103,6 +105,8 @@ export class UserService {
       const user = await this.usersRepository.findOne({ id: id });
       if (profileEditInput.email) {
         user.email = profileEditInput.email;
+        user.verified = false;
+        await this.verification.save(this.verification.create({ user }));
       }
       if (profileEditInput.password) {
         user.password = profileEditInput.password;

@@ -31,14 +31,16 @@ export class UsersResolver {
   async createUser(
     @Args('input') createUserInput: CreateUserInput,
   ): Promise<CreateUserOutput> {
-    const result = await this.userService.createUser(createUserInput);
-    if (result.error) {
+    try {
+      const result = await this.userService.createUser(createUserInput);
       return {
+        ok: true,
         ...result,
       };
-    } else {
+    } catch {
       return {
-        ...result,
+        error: 'Error',
+        ok: false,
       };
     }
   }
