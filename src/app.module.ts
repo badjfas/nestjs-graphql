@@ -16,6 +16,9 @@ import { JwtModule } from './jwt/jwt.module';
 import { JwtMiddleware } from './jwt/jwt.middleware';
 import { AuthModule } from './auth/auth.module';
 import { Verifications } from './users/entities/verification.entitiy';
+import { SequelizeModule } from '@nestjs/sequelize';
+import { Test } from './users/entities/test.entitiy';
+import { TestModule } from './users/test.module';
 
 @Module({
   imports: [
@@ -34,16 +37,27 @@ import { Verifications } from './users/entities/verification.entitiy';
         JWT_SECRET: Joi.string().required(),
       }),
     }), // dotenv
-    TypeOrmModule.forRoot({
-      type: 'postgres',
+    // TypeOrmModule.forRoot({
+    //   type: 'postgres',
+    //   port: +process.env.DB_PORT,
+    //   host: process.env.HOST,
+    //   username: process.env.USERNAME,
+    //   password: process.env.PASSWORD,
+    //   database: process.env.DB,
+    //   logging: true,
+    //   synchronize: true,
+    //   entities: [Restaurant, User, Verifications],
+    // }),
+    SequelizeModule.forRoot({
+      dialect: 'postgres',
       port: +process.env.DB_PORT,
       host: process.env.HOST,
       username: process.env.USERNAME,
       password: process.env.PASSWORD,
       database: process.env.DB,
-      logging: true,
       synchronize: true,
-      entities: [Restaurant, User, Verifications],
+      autoLoadModels: true,
+      models: [Test],
     }),
     GraphQLModule.forRoot({
       autoSchemaFile: true,
@@ -54,21 +68,23 @@ import { Verifications } from './users/entities/verification.entitiy';
         };
       },
     }),
-    RestaurantsModule,
-    UsersModule,
-    JwtModule.forRoot({
-      privateKey: process.env.JWT_SECRET,
-    }),
-    AuthModule,
+    TestModule,
+    // RestaurantsModule,
+    // UsersModule,
+    // JwtModule.forRoot({
+    //   privateKey: process.env.JWT_SECRET,
+    // }),
+    // AuthModule,
   ],
   controllers: [],
   providers: [],
 })
-export class AppModule implements NestModule {
-  configure(consumer: MiddlewareConsumer) {
-    consumer.apply(JwtMiddleware).forRoutes({
-      path: '/graphql',
-      method: RequestMethod.ALL,
-    });
-  }
-}
+// export class AppModule implements NestModule {
+//   configure(consumer: MiddlewareConsumer) {
+//     consumer.apply(JwtMiddleware).forRoutes({
+//       path: '/graphql',
+//       method: RequestMethod.ALL,
+//     });
+//   }
+// }
+export class AppModule {}

@@ -3,11 +3,9 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import {
   CreateUserInput,
-  CreateUserOutput,
   LoggedInUserInput,
   LoggedInUserOutput,
   ProfileEditInput,
-  ProfileEditOutput,
 } from './dtos/user.dto';
 import { User } from './entities/user.entity';
 import { JwtService } from 'src/jwt/jwt.service';
@@ -118,14 +116,20 @@ export class UserService {
   }
 
   async verifyEmail(code: string): Promise<boolean> {
-    const verify = await this.verification.findOne(
-      { code },
-      { relations: ['user'] },
-    );
-    console.log(verify, verify.user, 2131312313);
-    if (verify) {
-      verify.user.verified = true;
-      this.usersRepository.save(verify.user);
+    try {
+      const verify = await this.verification.findOne(
+        { code },
+        {
+          relations: ['user'],
+        },
+      );
+      console.log(verify, verify.user, 2131312313);
+      if (verify) {
+        verify.user.verified = true;
+        this.usersRepository.save(verify.user);
+      }
+    } catch (e) {
+      console.log(e);
     }
     return false;
   }
