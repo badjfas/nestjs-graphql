@@ -116,4 +116,17 @@ export class UserService {
       throw Error();
     }
   }
+
+  async verifyEmail(code: string): Promise<boolean> {
+    const verify = await this.verification.findOne(
+      { code },
+      { relations: ['user'] },
+    );
+    console.log(verify, verify.user, 2131312313);
+    if (verify) {
+      verify.user.verified = true;
+      this.usersRepository.save(verify.user);
+    }
+    return false;
+  }
 }
