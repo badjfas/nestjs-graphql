@@ -1,24 +1,12 @@
-import {
-  MiddlewareConsumer,
-  Module,
-  NestModule,
-  RequestMethod,
-} from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import * as Joi from 'joi';
 import { GraphQLModule } from '@nestjs/graphql';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { RestaurantsModule } from './restaurants/restaurants.module';
-import { Restaurant } from './restaurants/entities/restaurent.entity';
-import { UsersModule } from './users/users.module';
-import { User } from './users/entities/user.entity';
-import { JwtModule } from './jwt/jwt.module';
-import { JwtMiddleware } from './jwt/jwt.middleware';
-import { AuthModule } from './auth/auth.module';
-import { Verifications } from './users/entities/verification.entitiy';
 import { SequelizeModule } from '@nestjs/sequelize';
-import { Test } from './users/entities/test.entitiy';
-import { TestModule } from './users/test.module';
+import { UserModule } from './user/user.module';
+import { User } from './user/entity/user.entity';
+import { Sequelize } from 'sequelize-typescript';
+import { join } from 'path';
 
 @Module({
   imports: [
@@ -37,17 +25,7 @@ import { TestModule } from './users/test.module';
         JWT_SECRET: Joi.string().required(),
       }),
     }), // dotenv
-    // TypeOrmModule.forRoot({
-    //   type: 'postgres',
-    //   port: +process.env.DB_PORT,
-    //   host: process.env.HOST,
-    //   username: process.env.USERNAME,
-    //   password: process.env.PASSWORD,
-    //   database: process.env.DB,
-    //   logging: true,
-    //   synchronize: true,
-    //   entities: [Restaurant, User, Verifications],
-    // }),
+
     SequelizeModule.forRoot({
       dialect: 'postgres',
       port: +process.env.DB_PORT,
@@ -57,10 +35,12 @@ import { TestModule } from './users/test.module';
       database: process.env.DB,
       synchronize: true,
       autoLoadModels: true,
-      models: [Test],
+      dialectOptions: { charset: 'utf8mb4', dateStrings: true, typeCast: true }, // 날짜의 경우 문자열로 타입 변경 처리
+      models: [User],
     }),
     GraphQLModule.forRoot({
       autoSchemaFile: true,
+
       context: ({ req, res }) => {
         // resolver가 실행될때 매번 실행됌
         return {
@@ -68,7 +48,8 @@ import { TestModule } from './users/test.module';
         };
       },
     }),
-    TestModule,
+    UserModule,
+    // UserModule,
     // RestaurantsModule,
     // UsersModule,
     // JwtModule.forRoot({
@@ -87,4 +68,6 @@ import { TestModule } from './users/test.module';
 //     });
 //   }
 // }
-export class AppModule {}
+export class AppModule {
+  constructor(private readonly sequelize: Sequelize) {}
+}
