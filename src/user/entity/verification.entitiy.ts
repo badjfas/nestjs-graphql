@@ -23,6 +23,10 @@ export class Verification extends Model<Verification> {
   @Column
   id: number;
 
+  @Column
+  @Field(() => String)
+  code: string;
+
   @ForeignKey(() => User)
   @Column
   userId: number;

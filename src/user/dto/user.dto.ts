@@ -46,4 +46,13 @@ export class CreateAccountInput extends PickType(UserDto, [
 ]) {}
 
 @ObjectType()
-export class CreateAccountOutput extends CoreOutput {}
+export class CreateAccountOutput extends CoreOutput {
+  @Field(() => User, { nullable: true })
+  user: User;
+}
+
+@InputType()
+export class VerfiyEmailInput extends PickType(UserDto, ['email']) {
+  @Field(() => String)
+  code: string;
+}

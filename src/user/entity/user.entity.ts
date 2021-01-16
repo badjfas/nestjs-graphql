@@ -39,6 +39,10 @@ export class User extends Model<User> {
   @Column
   password: string;
 
+  @Field(() => Boolean)
+  @Column
+  isValid: boolean;
+
   @Field(() => Date)
   @Column({ defaultValue: sequelize.literal('now()') })
   createdAt: Date;

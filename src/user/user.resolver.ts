@@ -1,11 +1,13 @@
 import { InternalServerErrorException } from '@nestjs/common';
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
+import { CoreOutput } from 'src/common/dto/output.dto';
 import { MyJwtService } from 'src/my-jwt/my-jwt.service';
 import {
   CreateAccountInput,
   CreateAccountOutput,
   loginInput,
   loginOutput,
+  VerfiyEmailInput,
 } from './dto/user.dto';
 import { User } from './entity/user.entity';
 import { UserService } from './user.service';
@@ -39,6 +41,14 @@ export class UserResolver {
         };
       }
 
+      if (user.isValid === false) {
+        return {
+          ok: false,
+          error: '이메일 인증을 해주세요.',
+          token: null,
+        };
+      }
+
       if (user) {
         const token = this.jwtService.sign({ id: user.id });
         return {
@@ -60,11 +70,35 @@ export class UserResolver {
     @Args('input') createdAccountInput: CreateAccountInput,
   ): Promise<CreateAccountOutput> {
     try {
-      const isSuccess = await this.userService.createAccount({
+      const user = await this.userService.createAccount({
         ...createdAccountInput,
       });
-      console.log(isSuccess);
-      return null;
-    } catch (e) {}
+      return {
+        ok: true,
+        user: user,
+      };
+    } catch (e) {
+      return {
+        ok: false,
+        error: e,
+        user: null,
+      };
+    }
+  }
+
+  @Mutation(() => CoreOutput)
+  async verfyEmailMutation(
+    @Args('input') verifyEmail: VerfiyEmailInput,
+  ): Promise<CoreOutput> {
+    const isValid = await this.userService.verfyEmail({
+      email: verifyEmail.email,
+      code: verifyEmail.code,
+    });
+
+    if (isValid.error) return { ...isValid };
+
+    return {
+      ...isValid,
+    };
   }
 }
