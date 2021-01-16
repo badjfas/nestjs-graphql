@@ -1,4 +1,6 @@
+import { InternalServerErrorException } from '@nestjs/common';
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
+import { MyJwtService } from 'src/my-jwt/my-jwt.service';
 import {
   CreateAccountInput,
   CreateAccountOutput,
@@ -10,7 +12,10 @@ import { UserService } from './user.service';
 
 @Resolver(() => User)
 export class UserResolver {
-  constructor(private readonly userService: UserService) {}
+  constructor(
+    private readonly userService: UserService,
+    private readonly jwtService: MyJwtService,
+  ) {}
   @Query(() => [User])
   async getUsers(): Promise<User[]> {
     return await this.userService.findAll();
@@ -18,16 +23,29 @@ export class UserResolver {
 
   @Mutation(() => loginOutput)
   async login(@Args('input') loginInput: loginInput): Promise<loginOutput> {
-    const isExistEmail = await this.userService.findByEmail({
-      email: loginInput.email,
-    });
-
-    console.log(isExistEmail);
     try {
-      return {
-        token: '12345',
-        ok: true,
-      };
+      const user = await this.userService.findByEmail({
+        email: loginInput.email,
+      });
+      const hashPassword = this.jwtService.createHash({
+        password: loginInput.password,
+      });
+
+      if (user.password !== hashPassword) {
+        return {
+          token: null,
+          ok: false,
+          error: '이메일이나 비밀번호를 확인해주세요',
+        };
+      }
+
+      if (user) {
+        const token = this.jwtService.sign({ id: user.id });
+        return {
+          token: token,
+          ok: true,
+        };
+      }
     } catch (e) {
       return {
         token: null,

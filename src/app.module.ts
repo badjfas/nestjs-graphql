@@ -1,12 +1,19 @@
-import { Module } from '@nestjs/common';
+import {
+  MiddlewareConsumer,
+  Module,
+  NestModule,
+  RequestMethod,
+} from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import * as Joi from 'joi';
 import { GraphQLModule } from '@nestjs/graphql';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { UserModule } from './user/user.module';
 import { User } from './user/entity/user.entity';
-import { Sequelize } from 'sequelize-typescript';
-import { join } from 'path';
+import { Verification } from './user/entity/verification.entitiy';
+
+import { MyJwtModule } from './my-jwt/my-jwt.module';
+import { MyJwtMiddleware } from './my-jwt/my-jwt.middleware';
 
 @Module({
   imports: [
@@ -36,7 +43,7 @@ import { join } from 'path';
       synchronize: true,
       autoLoadModels: true,
       dialectOptions: { charset: 'utf8mb4', dateStrings: true, typeCast: true }, // 날짜의 경우 문자열로 타입 변경 처리
-      models: [User],
+      models: [User, Verification],
     }),
     GraphQLModule.forRoot({
       autoSchemaFile: true,
@@ -49,25 +56,20 @@ import { join } from 'path';
       },
     }),
     UserModule,
-    // UserModule,
-    // RestaurantsModule,
-    // UsersModule,
-    // JwtModule.forRoot({
-    //   privateKey: process.env.JWT_SECRET,
-    // }),
+    MyJwtModule.forRoot({
+      secretkey: process.env.JWT_SECRET,
+    }),
+
     // AuthModule,
   ],
   controllers: [],
   providers: [],
 })
-// export class AppModule implements NestModule {
-//   configure(consumer: MiddlewareConsumer) {
-//     consumer.apply(JwtMiddleware).forRoutes({
-//       path: '/graphql',
-//       method: RequestMethod.ALL,
-//     });
-//   }
-// }
-export class AppModule {
-  constructor(private readonly sequelize: Sequelize) {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(MyJwtMiddleware).forRoutes({
+      path: '/graphql',
+      method: RequestMethod.ALL,
+    });
+  }
 }

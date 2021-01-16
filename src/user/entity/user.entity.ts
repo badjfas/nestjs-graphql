@@ -2,6 +2,8 @@ import { Field, InputType, ObjectType } from '@nestjs/graphql';
 import sequelize from 'sequelize';
 import {
   BeforeCreate,
+  BeforeFind,
+  BelongsTo,
   Column,
   DataType,
   Model,
@@ -9,6 +11,8 @@ import {
 } from 'sequelize-typescript';
 import * as crypto from 'crypto';
 import { InternalServerErrorException } from '@nestjs/common';
+import { Verification } from './verification.entitiy';
+import { Verifications } from 'src/users/entities/verification.entitiy';
 @ObjectType()
 @InputType({ isAbstract: true })
 @Table({
